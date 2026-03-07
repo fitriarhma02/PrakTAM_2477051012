@@ -5,26 +5,29 @@ import com.example.praktam_2477051012.R
 object TugasSource {
 
     val tugasList = listOf(
+
         Tugas(
             judul = "Tugas Basis Data",
             matkul = "Basis Data",
-            deskripsi = "Membuat ERD dan Normalisasi",
+            deskripsi = "Membuat ERD dan normalisasi database.",
             deadline = "20 Juni 2026",
-            gambar = R.drawable.kalender
+            gambar = R.drawable.basis_data
         ),
+
         Tugas(
-            judul = "Tugas Mobile",
+            judul = "Tugas Pemrograman Mobile",
             matkul = "Pemrograman Mobile",
-            deskripsi = "Membuat CRUD SQLite",
+            deskripsi = "Membuat aplikasi CRUD menggunakan SQLite.",
             deadline = "25 Juni 2026",
-            gambar = R.drawable.list
+            gambar = R.drawable.pemrograman_mobile
         ),
+
         Tugas(
-            judul = "Tugas Web",
+            judul = "Tugas Pemrograman Web",
             matkul = "Pemrograman Web",
-            deskripsi = "Membuat Website CRUD",
+            deskripsi = "Membuat website CRUD menggunakan PHP dan MySQL.",
             deadline = "30 Juni 2026",
-            gambar = R.drawable.silang
+            gambar = R.drawable.pemrograman_web
         )
     )
 }
