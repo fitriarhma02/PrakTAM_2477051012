@@ -5,5 +5,6 @@ data class Tugas(
     val matkul: String,
     val deskripsi: String,
     val deadline: String,
-    val gambar: Int
+    val gambar: Int,
+    val prioritas: String
 )

@@ -4,27 +4,25 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.*
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.praktam_2477051012.model.Tugas
 import com.example.praktam_2477051012.model.TugasSource
 
 class MainActivity : ComponentActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -38,19 +36,71 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun DaftarTugasScreen() {
 
-    val scrollState = rememberScrollState()
-
-    Column(
+    LazyColumn(
         modifier = Modifier
-            .padding(16.dp)
-            .verticalScroll(scrollState)
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
 
-        TugasSource.tugasList.forEach { tugas ->
+        // 🔥 HEADER + LAZYROW
+        item {
+            Text(
+                text = "Rekomendasi Tugas",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold
+            )
 
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(TugasSource.tugasList) { tugas ->
+                    TugasRowItem(tugas)
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = "Daftar Tugas",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold
+            )
+        }
+
+        // 🔥 LIST UTAMA
+        items(TugasSource.tugasList) { tugas ->
             DetailScreen(tugas)
+        }
+    }
+}
 
-            Spacer(modifier = Modifier.height(24.dp))
+@Composable
+fun TugasRowItem(tugas: Tugas) {
+
+    Card(
+        modifier = Modifier.width(160.dp),
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(4.dp)
+    ) {
+        Column {
+
+            Image(
+                painter = painterResource(id = tugas.gambar),
+                contentDescription = tugas.judul,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(100.dp),
+                contentScale = ContentScale.Crop
+            )
+
+            Column(modifier = Modifier.padding(8.dp)) {
+                Text(
+                    text = tugas.judul,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(text = "Prioritas: ${tugas.prioritas}")
+            }
         }
     }
 }
@@ -58,46 +108,64 @@ fun DaftarTugasScreen() {
 @Composable
 fun DetailScreen(tugas: Tugas) {
 
-    Column(
-        modifier = Modifier.fillMaxWidth()
+    var isFavorite by remember { mutableStateOf(false) }
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(6.dp)
     ) {
 
-        Image(
-            painter = painterResource(id = tugas.gambar),
-            contentDescription = tugas.judul,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(200.dp)
-        )
+        Column {
 
-        Spacer(modifier = Modifier.height(8.dp))
+            Box {
+                Image(
+                    painter = painterResource(id = tugas.gambar),
+                    contentDescription = tugas.judul,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp),
+                    contentScale = ContentScale.Crop
+                )
 
-        Text(
-            text = tugas.judul,
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold
-        )
+                IconButton(
+                    onClick = { isFavorite = !isFavorite },
+                    modifier = Modifier.align(Alignment.TopEnd)
+                ) {
+                    Icon(
+                        imageVector = if (isFavorite)
+                            Icons.Filled.Favorite
+                        else
+                            Icons.Outlined.FavoriteBorder,
+                        contentDescription = "Favorite",
+                        tint = if (isFavorite) Color.Red else Color.White
+                    )
+                }
+            }
 
-        Text(
-            text = "Mata Kuliah: ${tugas.matkul}"
-        )
+            Spacer(modifier = Modifier.height(8.dp))
 
-        Text(
-            text = tugas.deskripsi
-        )
+            Column(modifier = Modifier.padding(12.dp)) {
 
-        Text(
-            text = "Deadline: ${tugas.deadline}",
-            fontWeight = FontWeight.Bold
-        )
+                Text(
+                    text = tugas.judul,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold
+                )
 
-        Spacer(modifier = Modifier.height(10.dp))
+                Text(text = "Mata Kuliah: ${tugas.matkul}")
+                Text(text = tugas.deskripsi)
+                Text(text = "Deadline: ${tugas.deadline}")
 
-        Button(
-            onClick = { },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Tandai Selesai")
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Button(
+                    onClick = { },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Tandai Selesai")
+                }
+            }
         }
     }
 }

@@ -7,27 +7,30 @@ object TugasSource {
     val tugasList = listOf(
 
         Tugas(
-            judul = "Tugas Basis Data",
-            matkul = "Basis Data",
-            deskripsi = "Membuat ERD dan normalisasi database.",
-            deadline = "20 Juni 2026",
-            gambar = R.drawable.basis_data
+            "Tugas Basis Data",
+            "Basis Data",
+            "Membuat ERD dan normalisasi database.",
+            "20 Juni 2026",
+            R.drawable.basis_data,
+            "Tinggi"
         ),
 
         Tugas(
-            judul = "Tugas Pemrograman Mobile",
-            matkul = "Pemrograman Mobile",
-            deskripsi = "Membuat aplikasi CRUD menggunakan SQLite.",
-            deadline = "25 Juni 2026",
-            gambar = R.drawable.pemrograman_mobile
+            "Tugas Pemrograman Mobile",
+            "Pemrograman Mobile",
+            "Membuat aplikasi CRUD SQLite.",
+            "25 Juni 2026",
+            R.drawable.pemrograman_mobile,
+            "Sedang"
         ),
 
         Tugas(
-            judul = "Tugas Pemrograman Web",
-            matkul = "Pemrograman Web",
-            deskripsi = "Membuat website CRUD menggunakan PHP dan MySQL.",
-            deadline = "30 Juni 2026",
-            gambar = R.drawable.pemrograman_web
+            "Tugas Pemrograman Web",
+            "Pemrograman Web",
+            "Membuat website CRUD PHP.",
+            "30 Juni 2026",
+            R.drawable.pemrograman_web,
+            "Rendah"
         )
     )
 }
