@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,7 +14,6 @@ import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -39,17 +39,20 @@ fun DaftarTugasScreen() {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
+            .statusBarsPadding()
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
 
-        // 🔥 HEADER + LAZYROW
+        // 🔥 HEADER
         item {
             Text(
                 text = "Rekomendasi Tugas",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold
             )
+
+            Spacer(modifier = Modifier.height(8.dp))
 
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -99,7 +102,7 @@ fun TugasRowItem(tugas: Tugas) {
                     text = tugas.judul,
                     fontWeight = FontWeight.Bold
                 )
-                Text(text = "Prioritas: ${tugas.prioritas}")
+                Text(text = tugas.matkul)
             }
         }
     }
@@ -108,6 +111,7 @@ fun TugasRowItem(tugas: Tugas) {
 @Composable
 fun DetailScreen(tugas: Tugas) {
 
+    // 🔥 STATE (MODUL 5)
     var isFavorite by remember { mutableStateOf(false) }
 
     Card(
@@ -118,7 +122,9 @@ fun DetailScreen(tugas: Tugas) {
 
         Column {
 
+            // 🔥 BOX (biar icon di atas gambar)
             Box {
+
                 Image(
                     painter = painterResource(id = tugas.gambar),
                     contentDescription = tugas.judul,
@@ -128,9 +134,13 @@ fun DetailScreen(tugas: Tugas) {
                     contentScale = ContentScale.Crop
                 )
 
+                // 🔥 ICON LOVE (SUDAH PASTI KELIHATAN)
                 IconButton(
                     onClick = { isFavorite = !isFavorite },
-                    modifier = Modifier.align(Alignment.TopEnd)
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(8.dp)
+                        .background(Color.White, shape = RoundedCornerShape(50))
                 ) {
                     Icon(
                         imageVector = if (isFavorite)
@@ -138,7 +148,7 @@ fun DetailScreen(tugas: Tugas) {
                         else
                             Icons.Outlined.FavoriteBorder,
                         contentDescription = "Favorite",
-                        tint = if (isFavorite) Color.Red else Color.White
+                        tint = if (isFavorite) Color.Red else Color.Black
                     )
                 }
             }
