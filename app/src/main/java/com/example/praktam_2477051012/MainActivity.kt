@@ -17,16 +17,16 @@ import androidx.compose.ui.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.praktam_2477051012.model.Tugas
 import com.example.praktam_2477051012.model.TugasSource
+import com.example.praktam_2477051012.ui.theme.PraktamTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            MaterialTheme {
+            PraktamTheme { // ✅ WAJIB modul 7
                 DaftarTugasScreen()
             }
         }
@@ -39,17 +39,16 @@ fun DaftarTugasScreen() {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background) //  theme
             .statusBarsPadding()
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
 
-        // 🔥 HEADER
         item {
             Text(
                 text = "Rekomendasi Tugas",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
+                style = MaterialTheme.typography.titleLarge
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -66,12 +65,10 @@ fun DaftarTugasScreen() {
 
             Text(
                 text = "Daftar Tugas",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
+                style = MaterialTheme.typography.titleLarge
             )
         }
 
-        // 🔥 LIST UTAMA
         items(TugasSource.tugasList) { tugas ->
             DetailScreen(tugas)
         }
@@ -84,7 +81,10 @@ fun TugasRowItem(tugas: Tugas) {
     Card(
         modifier = Modifier.width(160.dp),
         shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(4.dp)
+        elevation = CardDefaults.cardElevation(4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface //  theme
+        )
     ) {
         Column {
 
@@ -100,9 +100,12 @@ fun TugasRowItem(tugas: Tugas) {
             Column(modifier = Modifier.padding(8.dp)) {
                 Text(
                     text = tugas.judul,
-                    fontWeight = FontWeight.Bold
+                    style = MaterialTheme.typography.titleMedium
                 )
-                Text(text = tugas.matkul)
+                Text(
+                    text = tugas.matkul,
+                    style = MaterialTheme.typography.bodySmall
+                )
             }
         }
     }
@@ -111,18 +114,19 @@ fun TugasRowItem(tugas: Tugas) {
 @Composable
 fun DetailScreen(tugas: Tugas) {
 
-    // 🔥 STATE (MODUL 5)
     var isFavorite by remember { mutableStateOf(false) }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(6.dp)
+        elevation = CardDefaults.cardElevation(6.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface //  theme
+        )
     ) {
 
         Column {
 
-            // 🔥 BOX (biar icon di atas gambar)
             Box {
 
                 Image(
@@ -134,13 +138,15 @@ fun DetailScreen(tugas: Tugas) {
                     contentScale = ContentScale.Crop
                 )
 
-                // 🔥 ICON LOVE (SUDAH PASTI KELIHATAN)
                 IconButton(
                     onClick = { isFavorite = !isFavorite },
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .padding(8.dp)
-                        .background(Color.White, shape = RoundedCornerShape(50))
+                        .background(
+                            MaterialTheme.colorScheme.surface,
+                            shape = RoundedCornerShape(50)
+                        )
                 ) {
                     Icon(
                         imageVector = if (isFavorite)
@@ -148,7 +154,10 @@ fun DetailScreen(tugas: Tugas) {
                         else
                             Icons.Outlined.FavoriteBorder,
                         contentDescription = "Favorite",
-                        tint = if (isFavorite) Color.Red else Color.Black
+                        tint = if (isFavorite)
+                            MaterialTheme.colorScheme.primary //  theme
+                        else
+                            Color.Gray
                     )
                 }
             }
@@ -159,13 +168,23 @@ fun DetailScreen(tugas: Tugas) {
 
                 Text(
                     text = tugas.judul,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold
+                    style = MaterialTheme.typography.titleLarge
                 )
 
-                Text(text = "Mata Kuliah: ${tugas.matkul}")
-                Text(text = tugas.deskripsi)
-                Text(text = "Deadline: ${tugas.deadline}")
+                Text(
+                    text = "Mata Kuliah: ${tugas.matkul}",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+
+                Text(
+                    text = tugas.deskripsi,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+
+                Text(
+                    text = "Deadline: ${tugas.deadline}",
+                    style = MaterialTheme.typography.bodyMedium
+                )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
