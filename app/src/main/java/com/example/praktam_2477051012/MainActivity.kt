@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -21,27 +22,43 @@ import androidx.compose.ui.unit.dp
 import com.example.praktam_2477051012.model.Tugas
 import com.example.praktam_2477051012.model.TugasSource
 import com.example.praktam_2477051012.ui.theme.PraktamTheme
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            PraktamTheme { // ✅ WAJIB modul 7
-                DaftarTugasScreen()
+            PraktamTheme {
+                MainScreen()
             }
         }
     }
 }
 
 @Composable
-fun DaftarTugasScreen() {
+fun MainScreen() {
+    var selectedTugas by remember { mutableStateOf<Tugas?>(null) }
+
+    if (selectedTugas == null) {
+        DaftarTugasScreen(onClick = { selectedTugas = it })
+    } else {
+        DetailScreen(
+            tugas = selectedTugas!!,
+            onBack = { selectedTugas = null }
+        )
+    }
+}
+
+@Composable
+fun DaftarTugasScreen(onClick: (Tugas) -> Unit) {
 
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background) //  theme
-            .statusBarsPadding()
-            .padding(16.dp),
+            .background(MaterialTheme.colorScheme.background)
+            .statusBarsPadding(),
+        contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
 
@@ -57,7 +74,7 @@ fun DaftarTugasScreen() {
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(TugasSource.tugasList) { tugas ->
-                    TugasRowItem(tugas)
+                    TugasRowItem(tugas, onClick)
                 }
             }
 
@@ -70,32 +87,53 @@ fun DaftarTugasScreen() {
         }
 
         items(TugasSource.tugasList) { tugas ->
-            DetailScreen(tugas)
+            TugasListItem(tugas, onClick)
         }
     }
 }
 
 @Composable
-fun TugasRowItem(tugas: Tugas) {
+fun TugasRowItem(tugas: Tugas, onClick: (Tugas) -> Unit) {
+
+    var isFavorite by remember { mutableStateOf(false) }
 
     Card(
-        modifier = Modifier.width(160.dp),
+        modifier = Modifier
+            .width(160.dp)
+            .clickable { onClick(tugas) },
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(4.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface //  theme
+            containerColor = MaterialTheme.colorScheme.surface
         )
     ) {
         Column {
 
-            Image(
-                painter = painterResource(id = tugas.gambar),
-                contentDescription = tugas.judul,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(100.dp),
-                contentScale = ContentScale.Crop
-            )
+            Box {
+                Image(
+                    painter = painterResource(id = tugas.gambar),
+                    contentDescription = tugas.judul,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(100.dp),
+                    contentScale = ContentScale.Crop
+                )
+
+                IconButton(
+                    onClick = { isFavorite = !isFavorite },
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                ) {
+                    Icon(
+                        imageVector = if (isFavorite)
+                            Icons.Filled.Favorite
+                        else
+                            Icons.Outlined.FavoriteBorder,
+                        contentDescription = "Favorite",
+                        tint = if (isFavorite) Color.Red else Color.White
+                    )
+                }
+            }
 
             Column(modifier = Modifier.padding(8.dp)) {
                 Text(
@@ -112,20 +150,78 @@ fun TugasRowItem(tugas: Tugas) {
 }
 
 @Composable
-fun DetailScreen(tugas: Tugas) {
+fun TugasListItem(tugas: Tugas, onClick: (Tugas) -> Unit) {
 
     var isFavorite by remember { mutableStateOf(false) }
 
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick(tugas) },
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(6.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface //  theme
+            containerColor = MaterialTheme.colorScheme.surface
         )
     ) {
 
         Column {
+
+            Box {
+                Image(
+                    painter = painterResource(id = tugas.gambar),
+                    contentDescription = tugas.judul,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(180.dp),
+                    contentScale = ContentScale.Crop
+                )
+
+                IconButton(
+                    onClick = { isFavorite = !isFavorite },
+                    modifier = Modifier.align(Alignment.TopEnd)
+                ) {
+                    Icon(
+                        imageVector = if (isFavorite)
+                            Icons.Filled.Favorite
+                        else
+                            Icons.Outlined.FavoriteBorder,
+                        contentDescription = "Favorite",
+                        tint = if (isFavorite) Color.Red else Color.White
+                    )
+                }
+            }
+
+            Column(modifier = Modifier.padding(12.dp)) {
+                Text(
+                    text = tugas.judul,
+                    style = MaterialTheme.typography.titleLarge
+                )
+                Text(
+                    text = tugas.matkul,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun DetailScreen(tugas: Tugas, onBack: () -> Unit) {
+
+    var isFavorite by remember { mutableStateOf(false) }
+
+    var isLoading by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+        ) {
 
             Box {
 
@@ -134,7 +230,7 @@ fun DetailScreen(tugas: Tugas) {
                     contentDescription = tugas.judul,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(200.dp),
+                        .height(250.dp),
                     contentScale = ContentScale.Crop
                 )
 
@@ -143,10 +239,6 @@ fun DetailScreen(tugas: Tugas) {
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .padding(8.dp)
-                        .background(
-                            MaterialTheme.colorScheme.surface,
-                            shape = RoundedCornerShape(50)
-                        )
                 ) {
                     Icon(
                         imageVector = if (isFavorite)
@@ -154,17 +246,12 @@ fun DetailScreen(tugas: Tugas) {
                         else
                             Icons.Outlined.FavoriteBorder,
                         contentDescription = "Favorite",
-                        tint = if (isFavorite)
-                            MaterialTheme.colorScheme.primary //  theme
-                        else
-                            Color.Gray
+                        tint = if (isFavorite) Color.Red else Color.White
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Column(modifier = Modifier.padding(12.dp)) {
+            Column(modifier = Modifier.padding(16.dp)) {
 
                 Text(
                     text = tugas.judul,
@@ -186,15 +273,52 @@ fun DetailScreen(tugas: Tugas) {
                     style = MaterialTheme.typography.bodyMedium
                 )
 
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Button(
+                    onClick = {
+                        coroutineScope.launch {
+                            isLoading = true
+                            delay(2000)
+                            snackbarHostState.showSnackbar(
+                                "Tugas ${tugas.judul} selesai!"
+                            )
+                            isLoading = false
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !isLoading
+                ) {
+                    if (isLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(20.dp),
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            strokeWidth = 2.dp
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Memproses...")
+                    } else {
+                        Text("Tandai Selesai")
+                    }
+                }
+
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Button(
-                    onClick = { },
-                    modifier = Modifier.fillMaxWidth()
+                    onClick = onBack,
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.secondary
+                    )
                 ) {
-                    Text("Tandai Selesai")
+                    Text("Kembali")
                 }
             }
         }
+
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter)
+        )
     }
 }
