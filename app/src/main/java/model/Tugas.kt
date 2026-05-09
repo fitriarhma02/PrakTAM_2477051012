@@ -1,10 +1,14 @@
 package com.example.praktam_2477051012.model
 
+import com.google.gson.annotations.SerializedName
+
 data class Tugas(
-    val judul: String,
-    val matkul: String,
-    val deskripsi: String,
-    val deadline: String,
-    val gambar: Int,
-    val prioritas: String
+
+    val judul: String = "",
+    val matkul: String = "",
+    val deskripsi: String = "",
+    val deadline: String = "",
+
+    @SerializedName("image_url")
+    val imageUrl: String = ""
 )
