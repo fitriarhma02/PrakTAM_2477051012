@@ -1,4 +1,4 @@
-package com.example.praktam_2477051012.model
+package com.example.praktam_2477051012.data.model
 
 import com.google.gson.annotations.SerializedName
 
@@ -10,5 +10,7 @@ data class Tugas(
     val deadline: String = "",
 
     @SerializedName("image_url")
-    val imageUrl: String = ""
+    val imageUrl: String = "",
+
+    var isFavorite: Boolean = false
 )

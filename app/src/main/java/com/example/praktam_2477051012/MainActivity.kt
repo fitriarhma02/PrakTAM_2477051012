@@ -19,8 +19,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.example.praktam_2477051012.model.Tugas
-import com.example.praktam_2477051012.network.RetrofitClient
+import com.example.praktam_2477051012.data.model.Tugas
+import com.example.praktam_2477051012.data.repository.TugasRepository
 import com.example.praktam_2477051012.ui.theme.PraktamTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -79,12 +79,19 @@ fun DaftarTugasScreen(onClick: (Tugas) -> Unit) {
         mutableStateOf(false)
     }
 
+    val repository = remember {
+        TugasRepository()
+    }
+
     LaunchedEffect(Unit) {
 
         try {
 
             tugasList =
-                RetrofitClient.instance.getTugas()
+                repository.getTugas()
+                    .sortedByDescending {
+                        it.isFavorite
+                    }
 
             isLoading = false
             isError = false
@@ -156,7 +163,7 @@ fun DaftarTugasScreen(onClick: (Tugas) -> Unit) {
             item {
 
                 Text(
-                    text = "Rekomendasi Tugas",
+                    text = "Daftar Tugas",
                     style = MaterialTheme.typography.titleLarge
                 )
 
@@ -173,7 +180,17 @@ fun DaftarTugasScreen(onClick: (Tugas) -> Unit) {
 
                         TugasRowItem(
                             tugas = tugas,
-                            onClick = onClick
+                            onClick = onClick,
+                            onFavoriteClick = {
+
+                                tugas.isFavorite =
+                                    !tugas.isFavorite
+
+                                tugasList =
+                                    tugasList.sortedByDescending {
+                                        it.isFavorite
+                                    }
+                            }
                         )
                     }
                 }
@@ -183,7 +200,7 @@ fun DaftarTugasScreen(onClick: (Tugas) -> Unit) {
                 )
 
                 Text(
-                    text = "Daftar Tugas",
+                    text = "Daftar Mata Kuliah",
                     style = MaterialTheme.typography.titleLarge
                 )
             }
@@ -192,7 +209,17 @@ fun DaftarTugasScreen(onClick: (Tugas) -> Unit) {
 
                 TugasListItem(
                     tugas = tugas,
-                    onClick = onClick
+                    onClick = onClick,
+                    onFavoriteClick = {
+
+                        tugas.isFavorite =
+                            !tugas.isFavorite
+
+                        tugasList =
+                            tugasList.sortedByDescending {
+                                it.isFavorite
+                            }
+                    }
                 )
             }
         }
@@ -202,12 +229,9 @@ fun DaftarTugasScreen(onClick: (Tugas) -> Unit) {
 @Composable
 fun TugasRowItem(
     tugas: Tugas,
-    onClick: (Tugas) -> Unit
+    onClick: (Tugas) -> Unit,
+    onFavoriteClick: () -> Unit
 ) {
-
-    var isFavorite by remember {
-        mutableStateOf(false)
-    }
 
     Card(
         modifier = Modifier
@@ -241,9 +265,7 @@ fun TugasRowItem(
                 )
 
                 IconButton(
-                    onClick = {
-                        isFavorite = !isFavorite
-                    },
+                    onClick = onFavoriteClick,
 
                     modifier = Modifier
                         .align(Alignment.TopEnd)
@@ -251,7 +273,7 @@ fun TugasRowItem(
 
                     Icon(
                         imageVector =
-                            if (isFavorite)
+                            if (tugas.isFavorite)
                                 Icons.Filled.Favorite
                             else
                                 Icons.Outlined.FavoriteBorder,
@@ -259,7 +281,7 @@ fun TugasRowItem(
                         contentDescription = "Favorite",
 
                         tint =
-                            if (isFavorite)
+                            if (tugas.isFavorite)
                                 Color.Red
                             else
                                 Color.White
@@ -288,12 +310,9 @@ fun TugasRowItem(
 @Composable
 fun TugasListItem(
     tugas: Tugas,
-    onClick: (Tugas) -> Unit
+    onClick: (Tugas) -> Unit,
+    onFavoriteClick: () -> Unit
 ) {
-
-    var isFavorite by remember {
-        mutableStateOf(false)
-    }
 
     Card(
         modifier = Modifier
@@ -327,9 +346,7 @@ fun TugasListItem(
                 )
 
                 IconButton(
-                    onClick = {
-                        isFavorite = !isFavorite
-                    },
+                    onClick = onFavoriteClick,
 
                     modifier = Modifier
                         .align(Alignment.TopEnd)
@@ -337,7 +354,7 @@ fun TugasListItem(
 
                     Icon(
                         imageVector =
-                            if (isFavorite)
+                            if (tugas.isFavorite)
                                 Icons.Filled.Favorite
                             else
                                 Icons.Outlined.FavoriteBorder,
@@ -345,7 +362,7 @@ fun TugasListItem(
                         contentDescription = "Favorite",
 
                         tint =
-                            if (isFavorite)
+                            if (tugas.isFavorite)
                                 Color.Red
                             else
                                 Color.White
@@ -376,10 +393,6 @@ fun DetailScreen(
     tugas: Tugas,
     onBack: () -> Unit
 ) {
-
-    var isFavorite by remember {
-        mutableStateOf(false)
-    }
 
     var isLoading by remember {
         mutableStateOf(false)
@@ -421,7 +434,8 @@ fun DetailScreen(
 
                 IconButton(
                     onClick = {
-                        isFavorite = !isFavorite
+                        tugas.isFavorite =
+                            !tugas.isFavorite
                     },
 
                     modifier = Modifier
@@ -431,7 +445,7 @@ fun DetailScreen(
 
                     Icon(
                         imageVector =
-                            if (isFavorite)
+                            if (tugas.isFavorite)
                                 Icons.Filled.Favorite
                             else
                                 Icons.Outlined.FavoriteBorder,
@@ -439,7 +453,7 @@ fun DetailScreen(
                         contentDescription = "Favorite",
 
                         tint =
-                            if (isFavorite)
+                            if (tugas.isFavorite)
                                 Color.Red
                             else
                                 Color.White

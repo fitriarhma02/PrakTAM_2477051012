@@ -1,6 +1,6 @@
-package com.example.praktam_2477051012.network
+package com.example.praktam_2477051012.data.api
 
-import com.example.praktam_2477051012.model.Tugas
+import com.example.praktam_2477051012.data.model.Tugas
 import retrofit2.http.GET
 
 interface ApiService {
